@@ -19,9 +19,6 @@ $i = 2;
 while($i<=$number) {
 	if($array[$i]==1) {
 		echo $i . PHP_EOL;
-		$i++;
 	}
-	else {
-		$i++;
-	}
+	$i++;
 }
