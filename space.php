@@ -7,8 +7,8 @@ $space = [
 		[0,0,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0,0,0,0],
-		[0,0,0,0,0,0,0,0,0,0],
+		[0,1,0,0,0,0,0,0,0,0],
+		[0,1,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0],
 	];
 	
@@ -21,13 +21,21 @@ const GAME_STOPPED = 0;
 $gameStatus = GAME_RUNNING;
 
 function printSpace($space){
-	foreach($space as $y){
-		foreach($y as $x){
-			if ($x == ALIVE){
-				echo "#";
+	foreach($space as $yCoordinate => $y){
+		foreach($y as $xCoordinate => $x){
+			if($yCoordinate == 0 or $yCoordinate == 9){
+				echo "~";
 			}
-			if ($x == DEAD){
-				echo ".";
+			elseif($xCoordinate == 0 or $xCoordinate == 9){
+				echo "|";
+			}
+			else {
+				if ($x == ALIVE){
+					echo "#";
+				}
+				if ($x == DEAD){
+					echo ".";
+				}
 			}
 		}
 		echo PHP_EOL;
@@ -85,9 +93,9 @@ printSpace($space);
 while($gameStatus == GAME_RUNNING){
 	$spaceEvaluated = evaluate($space);
 	if($space <> $spaceEvaluated){
-	$space = $spaceEvaluated;
-	printSpace($spaceEvaluated);
-	usleep(200000);
+		$space = $spaceEvaluated;
+		printSpace($spaceEvaluated);
+		usleep(500000);
 	}
 	else{
 		$gameStatus = GAME_STOPPED;
