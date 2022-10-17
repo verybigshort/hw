@@ -7,8 +7,8 @@ $space = [
 		[0,0,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0],
-		[0,1,0,0,0,0,0,0,0,0],
-		[0,1,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,0,0],
 	];
 	
@@ -23,19 +23,11 @@ $gameStatus = GAME_RUNNING;
 function printSpace($space){
 	foreach($space as $yCoordinate => $y){
 		foreach($y as $xCoordinate => $x){
-			if($yCoordinate == 0 or $yCoordinate == 9){
-				echo "~";
+			if ($x == ALIVE){
+				echo "#";
 			}
-			elseif($xCoordinate == 0 or $xCoordinate == 9){
-				echo "|";
-			}
-			else {
-				if ($x == ALIVE){
-					echo "#";
-				}
-				if ($x == DEAD){
-					echo ".";
-				}
+			if ($x == DEAD){
+				echo ".";
 			}
 		}
 		echo PHP_EOL;
@@ -45,14 +37,14 @@ function printSpace($space){
 
 function countAliveNear($y,$x,$space){
 		$nearSum = [
-			$space[$y-1][$x-1],
-			$space[$y-1][$x],
-			$space[$y-1][$x+1],
-			$space[$y][$x-1],
-			$space[$y][$x+1],
-			$space[$y+1][$x-1],
-			$space[$y+1][$x],
-			$space[$y+1][$x+1]			
+			getCellStatusByCoordinate($space,$y-1,$x-1),
+			getCellStatusByCoordinate($space,$y-1,$x),
+			getCellStatusByCoordinate($space,$y-1,$x+1),
+			getCellStatusByCoordinate($space,$y,$x-1),
+			getCellStatusByCoordinate($space,$y,$x+1),
+			getCellStatusByCoordinate($space,$y+1,$x-1),
+			getCellStatusByCoordinate($space,$y+1,$x),
+			getCellStatusByCoordinate($space,$y+1,$x+1),
 			];
 	return array_sum($nearSum);
 }
@@ -62,10 +54,19 @@ function evaluate($space){
 	$spaceEvaluated = $space;
 	foreach($space as $y => $yCells){
 		foreach($yCells as $x => $cellStatus){
-			if(0<$y and $y<9 and 0<$x and $x<9){
-				$nearCells = countAliveNear($y,$x,$space);
-				$spaceEvaluated[$y][$x] = cellEvaluate($y,$x,$cellStatus,$nearCells);
+			$nearCellsAliveCount = countAliveNear($y,$x,$space);
+			$isCellAlive = $cellStatus == 1;
+			$newCellStatus = 0;
+			if($isCellAlive) {
+				if ($nearCellsAliveCount == 2 or $nearCellsAliveCount == 3){
+					$newCellStatus = 1;
+				}
+			} else {
+				if ($nearCellsAliveCount == 3){
+					$newCellStatus = 1;
+				}
 			}
+			$spaceEvaluated[$y][$x] = $newCellStatus;
 		}
 	}
 	return $spaceEvaluated;
@@ -88,6 +89,21 @@ function cellEvaluate($y,$x,$cellStatus,$nearCells){
 	return $cellStatus;
 }
 
+function getCellStatusByCoordinate($space, $y, $x){
+	if ($y == -1) {
+		$y = 9;
+	} elseif ($y == 10) {
+		$y = 0;
+	}
+	if ($x == -1) {
+		$x = 9;
+	} elseif ($x == 10) {
+		$x = 0;
+	}
+	return $space[$y][$x];
+}
+	
+
 printSpace($space);
 
 while($gameStatus == GAME_RUNNING){
@@ -95,7 +111,7 @@ while($gameStatus == GAME_RUNNING){
 	if($space <> $spaceEvaluated){
 		$space = $spaceEvaluated;
 		printSpace($spaceEvaluated);
-		usleep(500000);
+		usleep(250000);
 	}
 	else{
 		$gameStatus = GAME_STOPPED;
